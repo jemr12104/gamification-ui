@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { fetchUsers, updateXP, addBadge, logout } from "../action/api.ts";
+import { fetchUsers, updateXP, addBadge, logout } from "../actions/api.ts";
 import { Card, CardContent, Typography, Grid, Button, TextField, Container, Box, Paper, Avatar, IconButton, Divider } from "@mui/material";
 import { Add, CheckCircleOutline, PersonAdd, ExitToApp } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import LogoutButton from "../components/LogoutButton";
 
 const AdminPage = () => {
     const [users, setUsers] = useState([]);
@@ -112,5 +113,5 @@ const AdminPage = () => {
         </Container>
     );
 };
-
+<LogoutButton />
 export default AdminPage;

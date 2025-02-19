@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField, Button, Container, Paper, Typography } from "@mui/material";
-import { login } from "../action/api.ts";
+import { login } from "../actions/api.ts";
 
 const Login = () => {
     const [username, setUsername] = useState("");

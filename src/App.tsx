@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import UserProfile from "./components/UserProfile.tsx";
 import AdminPage from "./components/AdminPage.tsx";
 import Login from "./components/Login.tsx";
-import Rewards from "./components/Rewards.tsx";
+import Rewards from "./components/Rewards";
+import {JSX} from "react";
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
     const token = localStorage.getItem("token");

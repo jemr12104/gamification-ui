@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { fetchRewards, redeemReward, addReward } from "../action/api.ts";
-import { Card, CardContent, Typography, Grid, Button, Container, Paper, Avatar, Box, Divider, TextField } from "@mui/material";
+import { fetchRewards, redeemReward, addReward } from "../actions/api";
+import { Card, CardContent, Typography, Grid, Button, Container, Paper, Avatar, Box, Divider, TextField, Snackbar, Alert } from "@mui/material";
 import { ShoppingCart, AddCircleOutline } from "@mui/icons-material";
 
 const Rewards = () => {
     const [rewards, setRewards] = useState([]);
     const [newRewardName, setNewRewardName] = useState("");
     const [newRewardXpCost, setNewRewardXpCost] = useState("");
+    const [message, setMessage] = useState("");
+    const [severity, setSeverity] = useState<"success" | "error">("success");
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         fetchRewards().then(setRewards);
@@ -15,32 +18,48 @@ const Rewards = () => {
     const handleRedeem = async (rewardId: number) => {
         try {
             await redeemReward(1, rewardId); // Replace with actual user ID
-            alert("Reward redeemed successfully!");
+            setMessage("Reward redeemed successfully!");
+            setSeverity("success");
             setRewards(await fetchRewards());
         } catch (error) {
-            alert("Not enough XP to redeem this reward.");
+            setMessage("Not enough XP to redeem this reward.");
+            setSeverity('error');
         }
+        setOpen(true);
     };
 
     const handleAddReward = async () => {
         if (!newRewardName.trim() || !newRewardXpCost.trim()) {
-            alert("Please enter a reward name and XP cost.");
+            setMessage("Please enter a reward name and XP cost.");
+            setSeverity("error");
+            setOpen(true);
             return;
         }
 
         try {
             await addReward(newRewardName, parseInt(newRewardXpCost, 10));
-            alert("Reward added successfully!");
+            setMessage("Reward added successfully!");
+            setSeverity("success");
             setNewRewardName("");
             setNewRewardXpCost("");
             setRewards(await fetchRewards());
         } catch (error) {
-            alert("Failed to add reward.");
+            setMessage("Failed to add reward.");
+            setSeverity("error");
         }
+        setOpen(true);
     };
 
     return (
         <Container maxWidth="md">
+            {/* Notification Snackbar */}
+            <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+                <Alert onClose={() => setOpen(false)} severity={severity} sx={{ width: "100%" }}>
+                    {message}
+                </Alert>
+            </Snackbar>
+
+            {/* Header */}
             <Paper
                 elevation={3}
                 sx={{ padding: "20px", marginBottom: "30px", textAlign: "center", backgroundColor: "#1E88E5", color: "#fff" }}
@@ -70,6 +89,7 @@ const Rewards = () => {
                 </Button>
             </Box>
 
+            {/* Rewards List */}
             <Grid container spacing={2}>
                 {rewards.length === 0 ? (
                     <Typography variant="h6" textAlign="center" sx={{ width: "100%", marginTop: "20px" }}>

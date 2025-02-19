@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { fetchUsers } from "../action/api.ts";
+import { fetchUsers } from "../actions/api.ts";
 import { Card, CardContent, Typography, Grid, LinearProgress, Container, Paper, Avatar, Divider } from "@mui/material";
-
+import LogoutButton from "../components/LogoutButton";
 const UserProfile = () => {
     const [users, setUsers] = useState([]);
 
@@ -46,5 +46,5 @@ const UserProfile = () => {
         </Container>
     );
 };
-
+<LogoutButton />
 export default UserProfile;
