@@ -1,26 +1,34 @@
-import { useEffect, useState } from "react";
-import { fetchUsers } from "../actions/api.ts";
-import { Card, CardContent, Typography, Grid, LinearProgress, Container, Paper, Avatar, Divider } from "@mui/material";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsers } from "../reducers/userSlice";
+import { RootState, AppDispatch } from "../store";
+import { Card, CardContent, Typography, Grid, LinearProgress, Container, Paper, Avatar, Divider, CircularProgress } from "@mui/material";
 import LogoutButton from "../components/LogoutButton";
+
 const UserProfile = () => {
-    const [users, setUsers] = useState([]);
+    const dispatch = useDispatch<AppDispatch>();
+
+    // Obtener datos del store
+    const { users, loading, error } = useSelector((state: RootState) => state.users);
 
     useEffect(() => {
-        fetchUsers().then(setUsers);
-    }, []);
+        dispatch(fetchUsers());
+    }, [dispatch]);
 
-    // @ts-ignore
     return (
         <Container maxWidth="md">
             <Paper elevation={2} sx={{ padding: "20px", marginBottom: "20px", textAlign: "center" }}>
                 <Typography variant="h5" fontWeight="bold">User Dashboard</Typography>
             </Paper>
 
+            {/* Muestra carga o error */}
+            {loading && <CircularProgress sx={{ display: "block", margin: "auto" }} />}
+            {error && <Typography color="error" textAlign="center">{error}</Typography>}
+
             <Grid container spacing={2}>
                 {users.map(({ id, name, xp, level, badges }) => (
                     <Grid item key={id} xs={12} sm={6}>
                         <Card sx={{ display: "flex", alignItems: "center", padding: "15px", boxShadow: 1 }}>
-
                             {/* Avatar */}
                             <Avatar sx={{ bgcolor: "grey.700", width: 45, height: 45, fontSize: "18px", marginRight: "10px" }}>
                                 {name.charAt(0)}
@@ -43,8 +51,11 @@ const UserProfile = () => {
                     </Grid>
                 ))}
             </Grid>
+
+            {/* Botón de Logout */}
+            <LogoutButton />
         </Container>
     );
 };
-<LogoutButton />
+
 export default UserProfile;

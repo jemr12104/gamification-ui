@@ -1,48 +1,98 @@
 import { useEffect, useState } from "react";
-import { fetchUsers, updateXP, addBadge, logout } from "../actions/api.ts";
-import { Card, CardContent, Typography, Grid, Button, TextField, Container, Box, Paper, Avatar, IconButton, Divider } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsers, updateXP, addBadge, createUser } from "../reducers/userSlice";
+import { RootState, AppDispatch } from "../store";
+import { Card, CardContent, Typography, Grid, Button, TextField, Container, Box, Paper, Avatar, IconButton, Divider, CircularProgress, Snackbar, Alert, LinearProgress } from "@mui/material";
 import { Add, CheckCircleOutline, PersonAdd, ExitToApp } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import LogoutButton from "../components/LogoutButton";
 
 const AdminPage = () => {
-    const [users, setUsers] = useState([]);
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
+
+    // Acceder a los datos del store
+    const { users, loading, error } = useSelector((state: RootState) => state.users);
+    const [updatedUsers, setUpdatedUsers] = useState(users);
+
+    // Estados locales
     const [badgeInput, setBadgeInput] = useState("");
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [newUserName, setNewUserName] = useState("");
-    const navigate = useNavigate();
+    const [message, setMessage] = useState("");
+    const [severity, setSeverity] = useState<"success" | "error">("success");
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        fetchUsers().then(setUsers);
-    }, []);
+        dispatch(fetchUsers());
+    }, [dispatch]);
 
+    useEffect(() => {
+        setUpdatedUsers(users); // Refrescar la UI cada vez que los usuarios cambien
+    }, [users]);
+
+    // Dar XP al usuario
     const handleGiveXP = async (userId: number) => {
-        const updatedUser = await updateXP(userId, 50);
-        setUsers(users.map(user => user.id === userId ? updatedUser : user));
+        try {
+            await dispatch(updateXP({ userId, xpAmount: 50 })).unwrap();
+            setMessage("XP updated successfully!");
+            setSeverity("success");
+            dispatch(fetchUsers()); // Forzar actualización
+        } catch (error) {
+            setMessage("Failed to update XP.");
+            setSeverity("error");
+        }
+        setOpen(true);
     };
 
+    // Asignar una insignia
     const handleAddBadge = async () => {
         if (!selectedUserId || !badgeInput.trim()) return;
-        const updatedUser = await addBadge(selectedUserId, badgeInput);
-        setUsers(users.map(user => user.id === selectedUserId ? updatedUser : user));
+        try {
+            await dispatch(addBadge({ userId: selectedUserId, badge: badgeInput })).unwrap();
+            setMessage("Badge assigned successfully!");
+            setSeverity("success");
+            dispatch(fetchUsers());
+        } catch (error) {
+            setMessage("Failed to assign badge.");
+            setSeverity("error");
+        }
         setBadgeInput("");
         setSelectedUserId(null);
+        setOpen(true);
     };
 
+    // Crear un nuevo usuario
     const handleCreateUser = async () => {
         if (!newUserName.trim()) return;
-        const newUser = await createUser(newUserName);
-        setUsers([...users, newUser]);
-        setNewUserName("");
+        try {
+            await dispatch(createUser(newUserName)).unwrap();
+            setMessage("User created successfully!");
+            setSeverity("success");
+            setNewUserName("");
+            dispatch(fetchUsers());
+        } catch (error) {
+            setMessage("Failed to create user.");
+            setSeverity("error");
+        }
+        setOpen(true);
     };
 
+    // Cerrar sesión
     const handleLogout = () => {
-        logout();
+        localStorage.removeItem("token");
         navigate("/login");
     };
 
     return (
         <Container maxWidth="md">
+            {/* Notificación */}
+            <Snackbar open={open} autoHideDuration={3000} onClose={() => setOpen(false)}>
+                <Alert onClose={() => setOpen(false)} severity={severity} sx={{ width: "100%" }}>
+                    {message}
+                </Alert>
+            </Snackbar>
+
             <Paper elevation={2} sx={{ padding: "20px", marginBottom: "20px", textAlign: "center", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Typography variant="h5" fontWeight="bold">Admin Panel</Typography>
                 <Button variant="contained" color="error" startIcon={<ExitToApp />} onClick={handleLogout}>
@@ -50,6 +100,11 @@ const AdminPage = () => {
                 </Button>
             </Paper>
 
+            {/* Mostrar error o carga */}
+            {loading && <CircularProgress sx={{ display: "block", margin: "auto" }} />}
+            {error && <Typography color="error" textAlign="center">{error}</Typography>}
+
+            {/* Crear nuevo usuario */}
             <Box sx={{ textAlign: "center", marginBottom: "20px" }}>
                 <TextField
                     label="New User Name"
@@ -63,6 +118,7 @@ const AdminPage = () => {
                 </Button>
             </Box>
 
+            {/* Asignar insignias */}
             {selectedUserId && (
                 <Box sx={{ textAlign: "center", marginBottom: "20px" }}>
                     <Typography variant="subtitle1">Assign a badge to user ID {selectedUserId}</Typography>
@@ -79,11 +135,11 @@ const AdminPage = () => {
                 </Box>
             )}
 
+            {/* Lista de usuarios */}
             <Grid container spacing={2}>
-                {users.map(({ id, name, xp, level, badges }) => (
+                {updatedUsers.map(({ id, name, xp, level, badges }) => (
                     <Grid item key={id} xs={12} sm={6}>
                         <Card sx={{ display: "flex", alignItems: "center", padding: "15px", boxShadow: 1 }}>
-
                             <Avatar sx={{ bgcolor: "grey.700", width: 45, height: 45, fontSize: "18px", marginRight: "10px" }}>
                                 {name.charAt(0)}
                             </Avatar>
@@ -92,12 +148,17 @@ const AdminPage = () => {
                                 <Typography variant="body1" fontWeight="bold">{name}</Typography>
                                 <Typography variant="caption" color="textSecondary">Level {level}</Typography>
 
+                                {/* Barra de progreso de XP */}
+                                <LinearProgress variant="determinate" value={(xp / 100) * 100} sx={{ marginTop: 1, height: 6, borderRadius: 3 }} />
                                 <Typography variant="caption">XP: {xp} / 100</Typography>
 
                                 <Divider sx={{ marginY: 1 }} />
-                                <Typography variant="caption">Badges: {badges.length ? badges.join(", ") : "No badges"}</Typography>
+                                <Typography variant="caption">
+                                    Badges: {Array.isArray(badges) ? (badges.length > 0 ? badges.join(", ") : "No badges") : "No badges"}
+                                </Typography>
                             </CardContent>
 
+                            {/* Botones de acción */}
                             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
                                 <IconButton onClick={() => handleGiveXP(id)}>
                                     <Add />
@@ -110,8 +171,11 @@ const AdminPage = () => {
                     </Grid>
                 ))}
             </Grid>
+
+            {/* Botón de Logout */}
+            <LogoutButton />
         </Container>
     );
 };
-<LogoutButton />
+
 export default AdminPage;

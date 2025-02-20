@@ -1,21 +1,27 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "../store";
+import { login } from "../reducers/authSlice";
 import { useNavigate } from "react-router-dom";
-import { TextField, Button, Container, Paper, Typography } from "@mui/material";
-import { login } from "../actions/api.ts";
+import { TextField, Button, Container, Paper, Typography, CircularProgress, Alert } from "@mui/material";
 
 const Login = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
+
+    // Estados locales
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
+
+    // Acceder al estado de autenticación desde Redux
+    const { loading, error } = useSelector((state: RootState) => state.auth);
 
     const handleLogin = async () => {
         try {
-            const token = await login(username, password);
-            localStorage.setItem("token", token);
-            navigate("/admin");
+            await dispatch(login({ username, password })).unwrap();
+            navigate("/admin"); // Redirigir al panel de administración después del login exitoso
         } catch (err) {
-            setError("Invalid username or password");
+            console.error("Login failed:", err);
         }
     };
 
@@ -42,10 +48,19 @@ const Login = () => {
                     sx={{ marginTop: 2 }}
                 />
 
-                {error && <Typography color="error" sx={{ marginTop: 2 }}>{error}</Typography>}
+                {/* Mostrar error si el login falla */}
+                {error && <Alert severity="error" sx={{ marginTop: 2 }}>{error}</Alert>}
 
-                <Button variant="contained" color="primary" fullWidth sx={{ marginTop: 3 }} onClick={handleLogin}>
-                    Login
+                {/* Botón de login con indicador de carga */}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    sx={{ marginTop: 3 }}
+                    onClick={handleLogin}
+                    disabled={loading}
+                >
+                    {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
                 </Button>
             </Paper>
         </Container>
