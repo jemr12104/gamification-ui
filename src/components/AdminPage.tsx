@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers, updateXP, addBadge, createUser } from "../reducers/userSlice";
 import { RootState, AppDispatch } from "../store";
-import { Card, CardContent, Typography, Grid, Button, TextField, Container, Box, Paper, Avatar, IconButton, Divider, CircularProgress, Snackbar, Alert, LinearProgress } from "@mui/material";
+import {Card, CardContent, Typography, Grid, Button, TextField, Container, Box, Paper,
+    Avatar, IconButton, Divider, CircularProgress, Snackbar, Alert, LinearProgress
+} from "@mui/material";
+
 import { Add, CheckCircleOutline, PersonAdd, ExitToApp } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import LogoutButton from "../components/LogoutButton";
@@ -28,7 +31,7 @@ const AdminPage = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        setUpdatedUsers(users); // Refrescar la UI cada vez que los usuarios cambien
+        setUpdatedUsers(users);
     }, [users]);
 
     // Dar XP al usuario
@@ -37,7 +40,7 @@ const AdminPage = () => {
             await dispatch(updateXP({ userId, xpAmount: 50 })).unwrap();
             setMessage("XP updated successfully!");
             setSeverity("success");
-            dispatch(fetchUsers()); // Forzar actualización
+            dispatch(fetchUsers()); // Refrescar lista de usuarios
         } catch (error) {
             setMessage("Failed to update XP.");
             setSeverity("error");
@@ -93,7 +96,7 @@ const AdminPage = () => {
                 </Alert>
             </Snackbar>
 
-            <Paper elevation={2} sx={{ padding: "20px", marginBottom: "20px", textAlign: "center", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Paper elevation={3} sx={{ padding: "20px", marginBottom: "20px", textAlign: "center", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Typography variant="h5" fontWeight="bold">Admin Panel</Typography>
                 <Button variant="contained" color="error" startIcon={<ExitToApp />} onClick={handleLogout}>
                     Logout
@@ -139,7 +142,7 @@ const AdminPage = () => {
             <Grid container spacing={2}>
                 {updatedUsers.map(({ id, name, xp, level, badges }) => (
                     <Grid item key={id} xs={12} sm={6}>
-                        <Card sx={{ display: "flex", alignItems: "center", padding: "15px", boxShadow: 1 }}>
+                        <Card sx={{ display: "flex", alignItems: "center", padding: "15px", boxShadow: 3 }}>
                             <Avatar sx={{ bgcolor: "grey.700", width: 45, height: 45, fontSize: "18px", marginRight: "10px" }}>
                                 {name.charAt(0)}
                             </Avatar>
