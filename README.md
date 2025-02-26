@@ -1,50 +1,34 @@
-# React + TypeScript + Vite
+# 🎮 Gamification Portal - UI & Backend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🚀 **Gamification Portal** is an application that implements a gamification system where users can earn XP, unlock badges, and redeem rewards. Administrators can manage users and rewards.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📌 **Main Features**
+### **🧑‍💻 User Dashboard**
+- Progress tracking with XP bar.
+- Unlocking badges and achievements.
+- Redeeming accumulated rewards.
 
-## Expanding the ESLint configuration
+### **🛠️ Admin Panel**
+- Assigning XP to users.
+- Managing badges and rewards.
+- Viewing user progress.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### **💾 Technologies Used**
+- **Frontend:** React + TypeScript + Redux Toolkit + Material-UI (MUI).
+- **Backend:** Flask + SQLAlchemy + JWT Authentication.
+- **Database:** MySQL / MariaDB.
 
-- Configure the top-level `parserOptions` property like this:
+---
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 📸 **Project Preview**
+![Gamification Portal](./screenshot.png)
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+---
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## 🛠️ **Installation and Setup**
+### 🔹 **1. Clone Repositories**
+```sh
+git clone https://github.com/jemr12104/gamification-ui.git
+git clone https://github.com/jemr12104/gamification-ui-backend.git
