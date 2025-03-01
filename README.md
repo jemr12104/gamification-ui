@@ -30,8 +30,9 @@
 
 ## 📸 **Project Preview**
 
-![Gamification Portal](C:\Users\jemr1\Documents\Jeff\Practicas\interview\gamification\src\assets\Portal.jpg)
-
+<p align="center">
+  <img src="readmeimg/screenshot-1.jpg" alt="rewards view">
+</p>
 ---
 
 ## 🛠️ **Installation and Setup**
