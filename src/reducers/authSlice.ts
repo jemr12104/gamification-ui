@@ -4,6 +4,7 @@ import { login as loginAPI } from "../actions/api";
 // Definir la estructura del estado de autenticación
 interface AuthState {
     token: string | null;
+    username: string | null;
     loading: boolean;
     error: string | null;
 }
@@ -11,20 +12,31 @@ interface AuthState {
 // Estado inicial de autenticación
 const initialState: AuthState = {
     token: localStorage.getItem("token") || null, // Cargar el token desde localStorage si existe
+    username: localStorage.getItem("username") || null,
     loading: false,
     error: null,
 };
 
 // **Thunk para iniciar sesión y obtener el token**
-export const login = createAsyncThunk("auth/login", async ({ username, password }: { username: string; password: string }, { rejectWithValue }) => {
-    try {
-        const token = await loginAPI(username, password);
-        localStorage.setItem("token", token); // Guardar el token en localStorage
-        return token;
-    } catch (error: any) {
-        return rejectWithValue(error.message || "Login failed");
+export const login = createAsyncThunk(
+    "auth/login",
+    async (
+        { username, password }: { username: string; password: string },
+        { rejectWithValue }
+    ) => {
+        try {
+            const response = await loginAPI(username, password);
+            const { access_token, username: returnedUsername } = response;
+
+            localStorage.setItem("token", access_token); // Guardar el token en localStorage
+            localStorage.setItem("username", returnedUsername); // Guardar el username en localStorage
+
+            return { token: access_token, username: returnedUsername };
+        } catch (error: any) {
+            return rejectWithValue(error.message || "Login failed");
+        }
     }
-});
+);
 
 // **Slice de autenticación**
 export const authSlice = createSlice({
@@ -33,11 +45,15 @@ export const authSlice = createSlice({
     reducers: {
         logout: (state) => {
             state.token = null;
+            state.username = null;
             localStorage.removeItem("token"); // Eliminar el token al cerrar sesión
+            localStorage.removeItem("username"); // Eliminar el username al cerrar sesión
         },
-        setToken: (state, action: PayloadAction<string>) => {
-            state.token = action.payload;
-            localStorage.setItem("token", action.payload); // Guardar token en localStorage
+        setToken: (state, action: PayloadAction<{ token: string; username: string }>) => {
+            state.token = action.payload.token;
+            state.username = action.payload.username;
+            localStorage.setItem("token", action.payload.token); // Guardar token en localStorage
+            localStorage.setItem("username", action.payload.username); // Guardar username en localStorage
         },
     },
     extraReducers: (builder) => {
@@ -46,10 +62,14 @@ export const authSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(login.fulfilled, (state, action: PayloadAction<string>) => {
-                state.loading = false;
-                state.token = action.payload;
-            })
+            .addCase(
+                login.fulfilled,
+                (state, action: PayloadAction<{ token: string; username: string }>) => {
+                    state.loading = false;
+                    state.token = action.payload.token;
+                    state.username = action.payload.username;
+                }
+            )
             .addCase(login.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;

@@ -10,6 +10,7 @@ export const api = axios.create({
 // Automatically include JWT token in protected requests
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
+    console.log(token);
     if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
     } else {
@@ -25,7 +26,7 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             console.warn("Token expired. Trying to refresh...");
             try {
-                const refreshToken = localStorage.getItem("refresh_token");
+                const refreshToken = localStorage.getItem("token");
                 if (refreshToken) {
                     const refreshResponse = await axios.post(`${API_URL}/refresh`, { refresh_token: refreshToken });
                     localStorage.setItem("token", refreshResponse.data.access_token);
@@ -47,9 +48,16 @@ api.interceptors.response.use(
 export const login = async (username: string, password: string) => {
     try {
         const response = await api.post("/login", { username, password });
-        localStorage.setItem("token", response.data.access_token);
-        localStorage.setItem("refresh_token", response.data.refresh_token); // Save refresh token
-        return response.data.access_token;
+
+        if (response.data.access_token) {
+            localStorage.setItem("token", response.data.access_token);
+            localStorage.setItem("username", response.data.username);
+        } else {
+            console.error("No access token found in response!");
+            throw new Error("Login failed: No token received");
+        }
+
+        return response.data; // Devolver toda la respuesta para asegurar que los datos están disponibles
     } catch (error: any) {
         console.error("Login failed:", error.response?.data || error.message);
         throw new Error("Login failed");

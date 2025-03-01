@@ -13,6 +13,7 @@ import LogoutButton from "../components/LogoutButton";
 const AdminPage = () => {
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
+    const storedUsername = localStorage.getItem("username") || "Unknown User";
 
     // Acceder a los datos del store
     const { users, loading, error } = useSelector((state: RootState) => state.users);
@@ -97,7 +98,7 @@ const AdminPage = () => {
             </Snackbar>
 
             <Paper elevation={3} sx={{ padding: "20px", marginBottom: "20px", textAlign: "center", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography variant="h5" fontWeight="bold">Admin Panel</Typography>
+                <Typography variant="h5" fontWeight="bold">Admin Panel - {storedUsername}</Typography>
                 <Button variant="contained" color="error" startIcon={<ExitToApp />} onClick={handleLogout}>
                     Logout
                 </Button>
