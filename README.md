@@ -24,7 +24,7 @@
 ### **💾 Technologies Used**
 - **Frontend:** React + TypeScript + Redux Toolkit + Material-UI (MUI).
 - **Backend:** Flask + SQLAlchemy + JWT Authentication.
-- **Database:** MySQL / MariaDB.
+- **Database:**MariaDB.
 
 ---
 
