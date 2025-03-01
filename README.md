@@ -23,7 +23,8 @@
 ---
 
 ## 📸 **Project Preview**
-![Gamification Portal](./screenshot.png)
+
+![Gamification Portal](C:\Users\jemr1\Documents\Jeff\Practicas\interview\gamification\src\assets\Portal.jpg)
 
 ---
 
